@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "elm": "^0.19.1-5",
+    "elm-live": "^4.0.0-rc.1"
+  },
+  "scripts": {
+    "start": "elm-live src/Main.elm --open --dir dist/ -- --debug --output=dist/app.js",
+    "build": "elm make src/Main.elm --output=dist/app.js --optimize"
+  }
+}
