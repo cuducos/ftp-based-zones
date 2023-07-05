@@ -9,13 +9,22 @@ import Update exposing (Msg(..))
 
 viewFTPSettings : Int -> Html Msg
 viewFTPSettings ftp =
+    let
+        ftpLabel : String
+        ftpLabel =
+            if ftp == 0 then
+                ""
+
+            else
+                String.fromInt ftp
+    in
     div [ class "field" ]
         [ label [] [ text "FTP test result" ]
         , div [ class "ui left icon input" ]
             [ i [ class "bolt icon" ] []
             , input
                 [ type_ "numeric"
-                , ftp |> String.fromInt |> value
+                , value ftpLabel
                 , onInput UpdateFTP
                 ]
                 []
