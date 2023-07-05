@@ -114,7 +114,7 @@ view model =
         ]
         [ div
             [ class "column"
-            , style "max-width" "450px"
+            , style "max-width" "95vw"
             ]
             [ h1 [ class "ui pink image header" ]
                 [ div [ class "content" ] [ text "FTP-based Zones" ]
