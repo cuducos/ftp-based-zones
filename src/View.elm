@@ -93,6 +93,14 @@ viewZone zone =
 view : Model -> Html Msg
 view model =
     let
+        zoneSettingsLabel : String
+        zoneSettingsLabel =
+            if model.showSettings then
+                "Hide zone settings"
+
+            else
+                "Show zone settings"
+
         zoneSettings : Html Msg
         zoneSettings =
             if model.showSettings then
@@ -128,7 +136,7 @@ view model =
                         , onClick ToggleShowSettings
                         ]
                         [ i [ class "cog icon" ] []
-                        , text "Show zone settings"
+                        , text zoneSettingsLabel
                         ]
                     , zoneSettings
                     ]
