@@ -8,7 +8,7 @@ import View exposing (view)
 
 init : Model
 init =
-    createModel 185 False 50 55 60 65 70 75 80 85 90 95
+    createModel 200 False 50 55 60 65 70 75 80 85 90 95
 
 
 main : Program () Model Msg
