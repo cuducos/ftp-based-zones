@@ -31,19 +31,29 @@
             return isNaN(cached) ? defaults[key] : cached;
         };
 
+        const loadAppData = () => Object.keys(defaults).reduce((cached, key) => {
+            cached[key] = loadCache(key);
+            return cached;
+        }, {});
+
         const setCache = (obj) => {
             if (typeof obj.value !== "number") return;
             localStorage.setItem(obj.key, obj.value);
         };
 
-        app = Elm.Main.init({
-            node: document.getElementById("app"),
-            flags: Object.keys(defaults).reduce((cached, key) => {
-                cached[key] = loadCache(key);
-                return cached;
-            }, {}),
-        });
+        const resetSettings = () => {
+            Object.keys(defaults).forEach((key) => {
+                if (key !== "ftp") localStorage.removeItem(key);
+            });
+
+            const appData = loadAppData();
+            app.ports.loadAppData.send(appData);
+        };
+
+        const flags = loadAppData();
+        app = Elm.Main.init({node: document.getElementById("app"), flags: flags});
         app.ports.setCache.subscribe(setCache);
+        app.ports.resetSettings.subscribe(resetSettings);
     </script>
   </body>
 </html>

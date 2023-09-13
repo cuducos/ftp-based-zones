@@ -107,6 +107,14 @@ view model =
                     , viewZoneSettings model.zone3
                     , viewZoneSettings model.zone4
                     , viewZoneSettings model.zone5
+                    , div
+                        [ style "margin-bottom" "1rem"
+                        , style "cursor" "pointer"
+                        , onClick ResetSettings
+                        ]
+                        [ i [ class "undo icon" ] []
+                        , text "Reset zone settings to default values"
+                        ]
                     ]
 
             else

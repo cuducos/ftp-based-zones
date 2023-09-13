@@ -1,6 +1,6 @@
-port module Update exposing (Msg(..), ZoneEdge(..), update)
+port module Update exposing (Msg(..), ZoneEdge(..), loadAppData, update)
 
-import Model exposing (Model, Zone, ZoneId(..), createZone, recalculateModel)
+import Model exposing (Cached, Model, Zone, ZoneId(..), createModel, createZone, recalculateModel)
 
 
 type alias Cache =
@@ -39,6 +39,12 @@ cacheKey zone edge =
 
 
 port setCache : Cache -> Cmd msg
+
+
+port resetSettings : () -> Cmd msg
+
+
+port loadAppData : (Cached -> msg) -> Sub msg
 
 
 toInt : Int -> String -> Int
@@ -90,6 +96,8 @@ type Msg
     = ToggleShowSettings
     | UpdateFTP String
     | UpdateSettings Zone ZoneEdge String
+    | LoadAppData Cached
+    | ResetSettings
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -126,3 +134,23 @@ update msg model =
                     Cache (cacheKey zone edge) newValue
             in
             ( recalculateModel (updateSettings model zone edge newValue), setCache cache )
+
+        LoadAppData cached ->
+            ( createModel
+                model.ftp
+                model.showSettings
+                cached.zone1Min
+                cached.zone1Max
+                cached.zone2Min
+                cached.zone2Max
+                cached.zone3Min
+                cached.zone3Max
+                cached.zone4Min
+                cached.zone4Max
+                cached.zone5Min
+                cached.zone5Max
+            , Cmd.none
+            )
+
+        ResetSettings ->
+            ( model, resetSettings () )

@@ -1,4 +1,4 @@
-module Model exposing (Model, Zone, ZoneId(..), createModel, createZone, recalculateModel)
+module Model exposing (Cached, Model, Zone, ZoneId(..), createModel, createZone, recalculateModel)
 
 
 type ZoneId
@@ -72,3 +72,18 @@ recalculateModel model =
         model.zone4.maxPercent
         model.zone5.minPercent
         model.zone5.maxPercent
+
+
+type alias Cached =
+    { ftp : Int
+    , zone1Min : Int
+    , zone1Max : Int
+    , zone2Min : Int
+    , zone2Max : Int
+    , zone3Min : Int
+    , zone3Max : Int
+    , zone4Min : Int
+    , zone4Max : Int
+    , zone5Min : Int
+    , zone5Max : Int
+    }
