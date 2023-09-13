@@ -3,7 +3,42 @@ port module Update exposing (Msg(..), ZoneEdge(..), update)
 import Model exposing (Model, Zone, ZoneId(..), createZone, recalculateModel)
 
 
-port cacheFTP : Int -> Cmd msg
+type alias Cache =
+    { key : String
+    , value : Int
+    }
+
+
+cacheKey : Zone -> ZoneEdge -> String
+cacheKey zone edge =
+    let
+        suffix : String
+        suffix =
+            case edge of
+                Min ->
+                    "Min"
+
+                Max ->
+                    "Max"
+    in
+    case zone.id of
+        One ->
+            "zone1" ++ suffix
+
+        Two ->
+            "zone2" ++ suffix
+
+        Three ->
+            "zone3" ++ suffix
+
+        Four ->
+            "zone4" ++ suffix
+
+        Five ->
+            "zone5" ++ suffix
+
+
+port setCache : Cache -> Cmd msg
 
 
 toInt : Int -> String -> Int
@@ -22,19 +57,17 @@ type ZoneEdge
     | Max
 
 
-updateZone : Zone -> Int -> ZoneEdge -> String -> Zone
-updateZone zone ftp edge threshold =
+updateZone : Zone -> Int -> ZoneEdge -> Int -> Zone
+updateZone zone ftp edge value =
     case edge of
         Max ->
-            threshold
-                |> toInt zone.maxPercent
-                |> createZone zone.id ftp zone.name zone.color zone.minPercent
+            createZone zone.id ftp zone.name zone.color zone.minPercent value
 
         Min ->
-            createZone zone.id ftp zone.name zone.color (toInt zone.minPercent threshold) zone.maxPercent
+            createZone zone.id ftp zone.name zone.color value zone.maxPercent
 
 
-updateSettings : Model -> Zone -> ZoneEdge -> String -> Model
+updateSettings : Model -> Zone -> ZoneEdge -> Int -> Model
 updateSettings model zone edge value =
     case zone.id of
         One ->
@@ -70,8 +103,26 @@ update msg model =
                 newFTP : Int
                 newFTP =
                     toInt model.ftp value
+
+                cache : Cache
+                cache =
+                    Cache "ftp" newFTP
             in
-            ( recalculateModel { model | ftp = newFTP }, cacheFTP newFTP )
+            ( recalculateModel { model | ftp = newFTP }, setCache cache )
 
         UpdateSettings zone edge value ->
-            ( recalculateModel (updateSettings model zone edge value), Cmd.none )
+            let
+                newValue : Int
+                newValue =
+                    case edge of
+                        Min ->
+                            toInt zone.min value
+
+                        Max ->
+                            toInt zone.max value
+
+                cache : Cache
+                cache =
+                    Cache (cacheKey zone edge) newValue
+            in
+            ( recalculateModel (updateSettings model zone edge newValue), setCache cache )

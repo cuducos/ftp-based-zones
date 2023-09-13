@@ -12,20 +12,38 @@
     <div id="app"></div>
     <script src="/app.js"></script>
     <script>
-        const defaultFTP = 200;
-
-        const loadFTP = () => {
-            const cached = parseInt(localStorage.getItem("ftp"));
-            return isNaN(cached) ? defaultFTP : cached;
+        const defaults = {
+            ftp: 200,
+            zone1Min: 50,
+            zone1Max: 55,
+            zone2Min: 60,
+            zone2Max: 65,
+            zone3Min: 70,
+            zone3Max: 75,
+            zone4Min: 80,
+            zone4Max: 85,
+            zone5Min: 90,
+            zone5Max: 95,
         };
 
-        const cacheFTP = (ftp) => {
-            if (typeof ftp !== "number") return;
-            localStorage.setItem("ftp", ftp);
+        const loadCache = (key) => {
+            const cached = parseInt(localStorage.getItem(key));
+            return isNaN(cached) ? defaults[key] : cached;
         };
 
-        app = Elm.Main.init({ node: document.getElementById("app"), flags: loadFTP() });
-        app.ports.cacheFTP.subscribe(cacheFTP);
+        const setCache = (obj) => {
+            if (typeof obj.value !== "number") return;
+            localStorage.setItem(obj.key, obj.value);
+        };
+
+        app = Elm.Main.init({
+            node: document.getElementById("app"),
+            flags: Object.keys(defaults).reduce((cached, key) => {
+                cached[key] = loadCache(key);
+                return cached;
+            }, {}),
+        });
+        app.ports.setCache.subscribe(setCache);
     </script>
   </body>
 </html>
