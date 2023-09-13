@@ -1,6 +1,9 @@
-port module Update exposing (Msg(..), update)
+port module Update exposing (Msg(..), ZoneEdge(..), update)
 
-import Model exposing (Model, Zone, createModel, createZone)
+import Model exposing (Model, Zone, ZoneId(..), createZone, recalculateModel)
+
+
+port cacheFTP : Int -> Cmd msg
 
 
 toInt : Int -> String -> Int
@@ -14,66 +17,46 @@ toInt default value =
             |> Maybe.withDefault default
 
 
-type UpdateZoneMsg
-    = Min Int Zone String
-    | Max Int Zone String
+type ZoneEdge
+    = Min
+    | Max
 
 
-updateZone : UpdateZoneMsg -> Zone
-updateZone msg =
-    case msg of
-        Max ftp zone value ->
-            value
+updateZone : Zone -> Int -> ZoneEdge -> String -> Zone
+updateZone zone ftp edge threshold =
+    case edge of
+        Max ->
+            threshold
                 |> toInt zone.maxPercent
-                |> createZone ftp zone.name zone.color zone.minPercent
+                |> createZone zone.id ftp zone.name zone.color zone.minPercent
 
-        Min ftp zone value ->
-            createZone ftp zone.name zone.color (toInt zone.minPercent value) zone.maxPercent
-
-
-updateZoneMin : Int -> Zone -> String -> Zone
-updateZoneMin ftp zone value =
-    updateZone (Min ftp zone value)
+        Min ->
+            createZone zone.id ftp zone.name zone.color (toInt zone.minPercent threshold) zone.maxPercent
 
 
-updateZoneMax : Int -> Zone -> String -> Zone
-updateZoneMax ftp zone value =
-    updateZone (Max ftp zone value)
+updateSettings : Model -> Zone -> ZoneEdge -> String -> Model
+updateSettings model zone edge value =
+    case zone.id of
+        One ->
+            { model | zone1 = updateZone model.zone1 model.ftp edge value }
 
+        Two ->
+            { model | zone2 = updateZone model.zone2 model.ftp edge value }
 
-recalculateModel : Model -> Model
-recalculateModel model =
-    createModel
-        model.ftp
-        model.showSettings
-        model.zone1.minPercent
-        model.zone1.maxPercent
-        model.zone2.minPercent
-        model.zone2.maxPercent
-        model.zone3.minPercent
-        model.zone3.maxPercent
-        model.zone4.minPercent
-        model.zone4.maxPercent
-        model.zone5.minPercent
-        model.zone5.maxPercent
+        Three ->
+            { model | zone3 = updateZone model.zone3 model.ftp edge value }
 
+        Four ->
+            { model | zone4 = updateZone model.zone4 model.ftp edge value }
 
-port cacheFTP : Int -> Cmd msg
+        Five ->
+            { model | zone5 = updateZone model.zone5 model.ftp edge value }
 
 
 type Msg
     = ToggleShowSettings
     | UpdateFTP String
-    | UpdateZone1Min String
-    | UpdateZone1Max String
-    | UpdateZone2Min String
-    | UpdateZone2Max String
-    | UpdateZone3Min String
-    | UpdateZone3Max String
-    | UpdateZone4Min String
-    | UpdateZone4Max String
-    | UpdateZone5Min String
-    | UpdateZone5Max String
+    | UpdateSettings Zone ZoneEdge String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -90,32 +73,5 @@ update msg model =
             in
             ( recalculateModel { model | ftp = newFTP }, cacheFTP newFTP )
 
-        UpdateZone1Min value ->
-            ( { model | zone1 = updateZoneMin model.ftp model.zone1 value }, Cmd.none )
-
-        UpdateZone1Max value ->
-            ( { model | zone1 = updateZoneMax model.ftp model.zone1 value }, Cmd.none )
-
-        UpdateZone2Min value ->
-            ( { model | zone2 = updateZoneMin model.ftp model.zone2 value }, Cmd.none )
-
-        UpdateZone2Max value ->
-            ( { model | zone2 = updateZoneMax model.ftp model.zone2 value }, Cmd.none )
-
-        UpdateZone3Min value ->
-            ( { model | zone3 = updateZoneMin model.ftp model.zone3 value }, Cmd.none )
-
-        UpdateZone3Max value ->
-            ( { model | zone3 = updateZoneMax model.ftp model.zone3 value }, Cmd.none )
-
-        UpdateZone4Min value ->
-            ( { model | zone4 = updateZoneMin model.ftp model.zone4 value }, Cmd.none )
-
-        UpdateZone4Max value ->
-            ( { model | zone4 = updateZoneMax model.ftp model.zone4 value }, Cmd.none )
-
-        UpdateZone5Min value ->
-            ( { model | zone5 = updateZoneMin model.ftp model.zone5 value }, Cmd.none )
-
-        UpdateZone5Max value ->
-            ( { model | zone5 = updateZoneMax model.ftp model.zone5 value }, Cmd.none )
+        UpdateSettings zone edge value ->
+            ( recalculateModel (updateSettings model zone edge value), Cmd.none )

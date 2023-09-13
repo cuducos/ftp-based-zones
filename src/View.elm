@@ -4,7 +4,7 @@ import Html exposing (Html, a, div, form, h1, h2, i, input, label, text)
 import Html.Attributes exposing (class, href, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Model exposing (Model, Zone)
-import Update exposing (Msg(..))
+import Update exposing (Msg(..), ZoneEdge(..))
 
 
 viewFTPSettings : Int -> Html Msg
@@ -32,13 +32,9 @@ viewFTPSettings ftp =
         ]
 
 
-viewZoneSettings : Zone -> (String -> Msg) -> (String -> Msg) -> Html Msg
-viewZoneSettings zone minMsg maxMsg =
+viewZoneSettings : Zone -> Html Msg
+viewZoneSettings zone =
     let
-        title : String
-        title =
-            "Zone " ++ zone.name
-
         minLabel : String
         minLabel =
             "Minimum for Zone " ++ zone.name
@@ -56,7 +52,7 @@ viewZoneSettings zone minMsg maxMsg =
                 , input
                     [ type_ "numeric"
                     , zone.minPercent |> String.fromInt |> value
-                    , onInput minMsg
+                    , onInput (UpdateSettings zone Min)
                     ]
                     []
                 ]
@@ -68,7 +64,7 @@ viewZoneSettings zone minMsg maxMsg =
                 , input
                     [ type_ "numeric"
                     , zone.maxPercent |> String.fromInt |> value
-                    , onInput maxMsg
+                    , onInput (UpdateSettings zone Max)
                     ]
                     []
                 ]
@@ -106,11 +102,11 @@ view model =
             if model.showSettings then
                 div
                     []
-                    [ viewZoneSettings model.zone1 Update.UpdateZone1Min Update.UpdateZone1Max
-                    , viewZoneSettings model.zone2 Update.UpdateZone2Min Update.UpdateZone2Max
-                    , viewZoneSettings model.zone3 Update.UpdateZone3Min Update.UpdateZone3Max
-                    , viewZoneSettings model.zone4 Update.UpdateZone4Min Update.UpdateZone4Max
-                    , viewZoneSettings model.zone5 Update.UpdateZone5Min Update.UpdateZone5Max
+                    [ viewZoneSettings model.zone1
+                    , viewZoneSettings model.zone2
+                    , viewZoneSettings model.zone3
+                    , viewZoneSettings model.zone4
+                    , viewZoneSettings model.zone5
                     ]
 
             else
