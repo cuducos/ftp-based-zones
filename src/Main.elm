@@ -6,15 +6,20 @@ import Update exposing (Msg, update)
 import View exposing (view)
 
 
-init : Model
-init =
-    createModel 200 False 50 55 60 65 70 75 80 85 90 95
+init : Int -> ( Model, Cmd Msg )
+init ftp =
+    ( createModel ftp False 50 55 60 65 70 75 80 85 90 95
+    , Cmd.none
+    )
 
 
-main : Program () Model Msg
+
+
+main : Program Int Model Msg
 main =
-    Browser.sandbox
+    Browser.element
         { init = init
         , view = view
         , update = update
+        , subscriptions = \_ -> Sub.none
         }

@@ -1,4 +1,4 @@
-module Update exposing (Msg(..), update)
+port module Update exposing (Msg(..), update)
 
 import Model exposing (Model, Zone, createModel, createZone)
 
@@ -58,6 +58,9 @@ recalculateModel model =
         model.zone5.maxPercent
 
 
+port cacheFTP : Int -> Cmd msg
+
+
 type Msg
     = ToggleShowSettings
     | UpdateFTP String
@@ -73,41 +76,46 @@ type Msg
     | UpdateZone5Max String
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ToggleShowSettings ->
-            { model | showSettings = not model.showSettings }
+            ( { model | showSettings = not model.showSettings }, Cmd.none )
 
         UpdateFTP value ->
-            recalculateModel { model | ftp = toInt model.ftp value }
+            let
+                newFTP : Int
+                newFTP =
+                    toInt model.ftp value
+            in
+            ( recalculateModel { model | ftp = newFTP }, cacheFTP newFTP )
 
         UpdateZone1Min value ->
-            { model | zone1 = updateZoneMin model.ftp model.zone1 value }
+            ( { model | zone1 = updateZoneMin model.ftp model.zone1 value }, Cmd.none )
 
         UpdateZone1Max value ->
-            { model | zone1 = updateZoneMax model.ftp model.zone1 value }
+            ( { model | zone1 = updateZoneMax model.ftp model.zone1 value }, Cmd.none )
 
         UpdateZone2Min value ->
-            { model | zone2 = updateZoneMin model.ftp model.zone2 value }
+            ( { model | zone2 = updateZoneMin model.ftp model.zone2 value }, Cmd.none )
 
         UpdateZone2Max value ->
-            { model | zone2 = updateZoneMax model.ftp model.zone2 value }
+            ( { model | zone2 = updateZoneMax model.ftp model.zone2 value }, Cmd.none )
 
         UpdateZone3Min value ->
-            { model | zone3 = updateZoneMin model.ftp model.zone3 value }
+            ( { model | zone3 = updateZoneMin model.ftp model.zone3 value }, Cmd.none )
 
         UpdateZone3Max value ->
-            { model | zone3 = updateZoneMax model.ftp model.zone3 value }
+            ( { model | zone3 = updateZoneMax model.ftp model.zone3 value }, Cmd.none )
 
         UpdateZone4Min value ->
-            { model | zone4 = updateZoneMin model.ftp model.zone4 value }
+            ( { model | zone4 = updateZoneMin model.ftp model.zone4 value }, Cmd.none )
 
         UpdateZone4Max value ->
-            { model | zone4 = updateZoneMax model.ftp model.zone4 value }
+            ( { model | zone4 = updateZoneMax model.ftp model.zone4 value }, Cmd.none )
 
         UpdateZone5Min value ->
-            { model | zone5 = updateZoneMin model.ftp model.zone5 value }
+            ( { model | zone5 = updateZoneMin model.ftp model.zone5 value }, Cmd.none )
 
         UpdateZone5Max value ->
-            { model | zone5 = updateZoneMax model.ftp model.zone5 value }
+            ( { model | zone5 = updateZoneMax model.ftp model.zone5 value }, Cmd.none )

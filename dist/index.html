@@ -12,7 +12,20 @@
     <div id="app"></div>
     <script src="/app.js"></script>
     <script>
-      Elm.Main.init({ node: document.getElementById("app") });
+        const defaultFTP = 200;
+
+        const loadFTP = () => {
+            const cached = parseInt(localStorage.getItem("ftp"));
+            return isNaN(cached) ? defaultFTP : cached;
+        };
+
+        const cacheFTP = (ftp) => {
+            if (typeof ftp !== "number") return;
+            localStorage.setItem("ftp", ftp);
+        };
+
+        app = Elm.Main.init({ node: document.getElementById("app"), flags: loadFTP() });
+        app.ports.cacheFTP.subscribe(cacheFTP);
     </script>
   </body>
 </html>
