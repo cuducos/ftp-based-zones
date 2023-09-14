@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Html exposing (Html, a, div, form, h1, h2, i, input, label, text)
+import Html exposing (Html, a, button, div, form, h1, h2, i, input, label, text)
 import Html.Attributes exposing (class, href, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Model exposing (Model, Zone, ZoneId(..))
@@ -151,12 +151,13 @@ view model =
                     , viewZoneSettings model.zone4
                     , viewZoneSettings model.zone5
                     , div
-                        [ style "margin-bottom" "1rem"
-                        , style "cursor" "pointer"
-                        , onClick ResetSettings
-                        ]
-                        [ i [ class "undo icon" ] []
-                        , text "Reset zone settings to default values"
+                        [ style "margin-top" "1rem" ]
+                        [ button
+                            [ class "ui compact labeled icon button"
+                            , onClick ResetSettings
+                            ]
+                            [ i [ class "undo icon" ] [],
+                            text "Reset zone settings to default values" ]
                         ]
                     ]
 
@@ -174,17 +175,21 @@ view model =
             [ h1 [ class "ui pink image header" ]
                 [ div [ class "content" ] [ text "FTP-based Zones" ]
                 ]
-            , form [ class "ui large form" ]
+            , div [ class "ui large form" ]
                 [ div [ class "ui stacked segment" ]
-                    [ viewFTPSettings model.ftp
-                    , div
+                    [ div
                         [ style "margin-bottom" "1rem"
-                        , style "cursor" "pointer"
-                        , onClick ToggleShowSettings
+                        , style "text-align" "right"
                         ]
-                        [ i [ class "cog icon" ] []
-                        , text zoneSettingsLabel
+                        [ button
+                            [ class "ui compact labeled icon button"
+                            , onClick ToggleShowSettings
+                            ]
+                            [ i [ class "cog icon" ] []
+                            , text zoneSettingsLabel
+                            ]
                         ]
+                    , viewFTPSettings model.ftp
                     , zoneSettings
                     ]
                 ]
