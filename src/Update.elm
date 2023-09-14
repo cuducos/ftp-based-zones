@@ -67,10 +67,10 @@ updateZone : Zone -> Int -> ZoneEdge -> Int -> Zone
 updateZone zone ftp edge value =
     case edge of
         Max ->
-            createZone zone.id ftp zone.name zone.color zone.minPercent value
+            createZone zone.id ftp zone.minPercent value
 
         Min ->
-            createZone zone.id ftp zone.name zone.color value zone.maxPercent
+            createZone zone.id ftp  value zone.maxPercent
 
 
 updateSettings : Model -> Zone -> ZoneEdge -> Int -> Model

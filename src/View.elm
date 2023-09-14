@@ -3,8 +3,51 @@ module View exposing (view)
 import Html exposing (Html, a, div, form, h1, h2, i, input, label, text)
 import Html.Attributes exposing (class, href, style, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Model exposing (Model, Zone)
+import Model exposing (Model, Zone, ZoneId(..))
 import Update exposing (Msg(..), ZoneEdge(..))
+
+
+zoneName : Zone -> String
+zoneName zone =
+    let
+        number : String
+        number =
+            case zone.id of
+                One ->
+                    "1"
+
+                Two ->
+                    "2"
+
+                Three ->
+                    "3"
+
+                Four ->
+                    "4"
+
+                Five ->
+                    "5"
+    in
+    "Zone " ++ number
+
+
+zoneColor : Zone -> String
+zoneColor zone =
+    case zone.id of
+        One ->
+            "grey"
+
+        Two ->
+            "blue"
+
+        Three ->
+            "green"
+
+        Four ->
+            "yellow"
+
+        Five ->
+            "red"
 
 
 viewFTPSettings : Int -> Html Msg
@@ -37,11 +80,11 @@ viewZoneSettings zone =
     let
         minLabel : String
         minLabel =
-            "Minimum for Zone " ++ zone.name
+            "Minimum for " ++ zoneName zone
 
         maxLabel : String
         maxLabel =
-            "Maximum for Zone " ++ zone.name
+            "Maximum for " ++ zoneName zone
     in
     div
         [ class "fields" ]
@@ -76,11 +119,11 @@ viewZone : Zone -> Html Msg
 viewZone zone =
     div
         [ class "ui inverted segment"
-        , class zone.color
+        , class (zoneColor zone)
         ]
         [ h2
             []
-            [ text ("Zone " ++ zone.name)
+            [ text (zoneName zone)
             , div [ class "h2" ] [ text (String.join " — " [ String.fromInt zone.min, String.fromInt zone.max ]) ]
             ]
         ]

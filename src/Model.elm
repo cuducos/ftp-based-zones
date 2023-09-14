@@ -10,18 +10,16 @@ type ZoneId
 
 
 type alias Zone =
-    { name : String
-    , color : String
+    { id : ZoneId
     , minPercent : Int
     , maxPercent : Int
     , min : Int
     , max : Int
-    , id : ZoneId
     }
 
 
-createZone : ZoneId -> Int -> String -> String -> Int -> Int -> Zone
-createZone id ftp name color min max =
+createZone : ZoneId -> Int -> Int -> Int -> Zone
+createZone id ftp min max =
     let
         percent : Int -> Int
         percent value =
@@ -31,7 +29,7 @@ createZone id ftp name color min max =
                 |> (*) (toFloat ftp)
                 |> round
     in
-    Zone name color min max (percent min) (percent max) id
+    Zone id min max (percent min) (percent max)
 
 
 type alias Model =
@@ -50,11 +48,11 @@ createModel ftp showSettings minZone1 maxZone1 minZone2 maxZone2 minZone3 maxZon
     Model
         ftp
         showSettings
-        (createZone One ftp "1" "grey" minZone1 maxZone1)
-        (createZone Two ftp "2" "blue" minZone2 maxZone2)
-        (createZone Three ftp "3" "green" minZone3 maxZone3)
-        (createZone Four ftp "4" "yellow" minZone4 maxZone4)
-        (createZone Five ftp "5" "red" minZone5 maxZone5)
+        (createZone One ftp minZone1 maxZone1)
+        (createZone Two ftp minZone2 maxZone2)
+        (createZone Three ftp minZone3 maxZone3)
+        (createZone Four ftp minZone4 maxZone4)
+        (createZone Five ftp minZone5 maxZone5)
 
 
 recalculateModel : Model -> Model
