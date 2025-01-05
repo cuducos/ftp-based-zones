@@ -1,6 +1,6 @@
 port module Update exposing (Msg(..), ZoneEdge(..), loadAppData, update)
 
-import Model exposing (Cached, Model, Zone, ZoneId(..), createModel, createZone, recalculateModel)
+import Model exposing (Cached, Model, Unit(..), Zone, ZoneId(..), createModel, createZone, recalculateModel)
 
 
 type alias Cache =
@@ -94,7 +94,10 @@ updateSettings model zone edge value =
 
 type Msg
     = ToggleShowSettings
+    | SetMetric
+    | SetImperial
     | UpdateFTP String
+    | UpdateWeight String
     | UpdateSettings Zone ZoneEdge String
     | LoadAppData Cached
     | ResetSettings
@@ -105,6 +108,12 @@ update msg model =
     case msg of
         ToggleShowSettings ->
             ( { model | showSettings = not model.showSettings }, Cmd.none )
+
+        SetMetric ->
+            ( { model | unit = Metric }, setCache (Cache "isMetric" 1) )
+
+        SetImperial ->
+            ( { model | unit = Imperial }, setCache (Cache "isMetric" 0) )
 
         UpdateFTP value ->
             let
@@ -117,6 +126,18 @@ update msg model =
                     Cache "ftp" newFTP
             in
             ( recalculateModel { model | ftp = newFTP }, setCache cache )
+
+        UpdateWeight value ->
+            let
+                newWeight : Int
+                newWeight =
+                    toInt model.weight value
+
+                cache : Cache
+                cache =
+                    Cache "weight" newWeight
+            in
+            ( { model | weight = newWeight }, setCache cache )
 
         UpdateSettings zone edge value ->
             let
@@ -136,8 +157,19 @@ update msg model =
             ( recalculateModel (updateSettings model zone edge newValue), setCache cache )
 
         LoadAppData cached ->
+            let
+                unit : Unit
+                unit =
+                    if cached.isMetric == 1 then
+                        Metric
+
+                    else
+                        Imperial
+            in
             ( createModel
                 model.ftp
+                cached.weight
+                unit
                 model.showSettings
                 cached.zone1Min
                 cached.zone1Max

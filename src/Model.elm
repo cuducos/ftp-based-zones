@@ -1,4 +1,4 @@
-module Model exposing (Cached, Model, Zone, ZoneId(..), createModel, createZone, recalculateModel)
+module Model exposing (Cached, Model, Unit(..), Zone, ZoneId(..), createModel, createZone, recalculateModel)
 
 
 type ZoneId
@@ -32,8 +32,15 @@ createZone id ftp min max =
     Zone id min max (percent min) (percent max)
 
 
+type Unit
+    = Metric
+    | Imperial
+
+
 type alias Model =
     { ftp : Int
+    , weight : Int
+    , unit : Unit
     , showSettings : Bool
     , zone1 : Zone
     , zone2 : Zone
@@ -43,10 +50,12 @@ type alias Model =
     }
 
 
-createModel : Int -> Bool -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Model
-createModel ftp showSettings minZone1 maxZone1 minZone2 maxZone2 minZone3 maxZone3 minZone4 maxZone4 minZone5 maxZone5 =
+createModel : Int -> Int -> Unit -> Bool -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Model
+createModel ftp weight unit showSettings minZone1 maxZone1 minZone2 maxZone2 minZone3 maxZone3 minZone4 maxZone4 minZone5 maxZone5 =
     Model
         ftp
+        weight
+        unit
         showSettings
         (createZone One ftp minZone1 maxZone1)
         (createZone Two ftp minZone2 maxZone2)
@@ -59,6 +68,8 @@ recalculateModel : Model -> Model
 recalculateModel model =
     createModel
         model.ftp
+        model.weight
+        model.unit
         model.showSettings
         model.zone1.minPercent
         model.zone1.maxPercent
@@ -74,6 +85,8 @@ recalculateModel model =
 
 type alias Cached =
     { ftp : Int
+    , weight : Int
+    , isMetric : Int
     , zone1Min : Int
     , zone1Max : Int
     , zone2Min : Int

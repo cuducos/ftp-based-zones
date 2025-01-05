@@ -1,14 +1,26 @@
 module Main exposing (main)
 
 import Browser
-import Model exposing (Cached, Model, createModel)
+import Model exposing (Cached, Model, Unit(..), createModel)
 import Update exposing (Msg(..), loadAppData, update)
 import View exposing (view)
 
 
 init : Cached -> ( Model, Cmd Msg )
 init cached =
-    ( createModel cached.ftp
+    let
+        unit : Unit
+        unit =
+            if cached.isMetric == 1 then
+
+                Metric
+            else
+                Imperial
+    in
+    ( createModel
+        cached.ftp
+        cached.weight
+        unit
         False
         cached.zone1Min
         cached.zone1Max
