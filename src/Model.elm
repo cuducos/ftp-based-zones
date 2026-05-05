@@ -42,6 +42,8 @@ type alias Model =
     , weight : Int
     , unit : Unit
     , showSettings : Bool
+    , perKg : Bool
+    , weightWarning : Bool
     , zone1 : Zone
     , zone2 : Zone
     , zone3 : Zone
@@ -50,13 +52,15 @@ type alias Model =
     }
 
 
-createModel : Int -> Int -> Unit -> Bool -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Model
-createModel ftp weight unit showSettings minZone1 maxZone1 minZone2 maxZone2 minZone3 maxZone3 minZone4 maxZone4 minZone5 maxZone5 =
+createModel : Int -> Int -> Unit -> Bool -> Bool -> Bool -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Model
+createModel ftp weight unit showSettings perKg weightWarning minZone1 maxZone1 minZone2 maxZone2 minZone3 maxZone3 minZone4 maxZone4 minZone5 maxZone5 =
     Model
         ftp
         weight
         unit
         showSettings
+        perKg
+        weightWarning
         (createZone One ftp minZone1 maxZone1)
         (createZone Two ftp minZone2 maxZone2)
         (createZone Three ftp minZone3 maxZone3)
@@ -71,6 +75,8 @@ recalculateModel model =
         model.weight
         model.unit
         model.showSettings
+        model.perKg
+        model.weightWarning
         model.zone1.minPercent
         model.zone1.maxPercent
         model.zone2.minPercent
@@ -87,6 +93,7 @@ type alias Cached =
     { ftp : Int
     , weight : Int
     , isMetric : Int
+    , perKg : Int
     , zone1Min : Int
     , zone1Max : Int
     , zone2Min : Int

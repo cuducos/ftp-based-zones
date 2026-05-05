@@ -70,7 +70,7 @@ updateZone zone ftp edge value =
             createZone zone.id ftp zone.minPercent value
 
         Min ->
-            createZone zone.id ftp  value zone.maxPercent
+            createZone zone.id ftp value zone.maxPercent
 
 
 updateSettings : Model -> Zone -> ZoneEdge -> Int -> Model
@@ -101,6 +101,7 @@ type Msg
     | UpdateSettings Zone ZoneEdge String
     | LoadAppData Cached
     | ResetSettings
+    | ToggleZoneInWPerKg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -137,7 +138,16 @@ update msg model =
                 cache =
                     Cache "weight" newWeight
             in
-            ( { model | weight = newWeight }, setCache cache )
+            if newWeight == 0 && model.perKg then
+                ( { model | weight = newWeight, perKg = False, weightWarning = False }
+                , Cmd.batch
+                    [ setCache cache
+                    , setCache (Cache "perKg" 0)
+                    ]
+                )
+
+            else
+                ( { model | weight = newWeight, weightWarning = False }, setCache cache )
 
         UpdateSettings zone edge value ->
             let
@@ -165,12 +175,18 @@ update msg model =
 
                     else
                         Imperial
+
+                perKg : Bool
+                perKg =
+                    cached.perKg == 1
             in
             ( createModel
                 model.ftp
                 cached.weight
                 unit
                 model.showSettings
+                perKg
+                False
                 cached.zone1Min
                 cached.zone1Max
                 cached.zone2Min
@@ -186,3 +202,25 @@ update msg model =
 
         ResetSettings ->
             ( model, resetSettings () )
+
+        ToggleZoneInWPerKg ->
+            let
+                newValue : Bool
+                newValue =
+                    not model.perKg
+            in
+            if newValue && model.weight == 0 then
+                ( { model | weightWarning = True }, Cmd.none )
+
+            else
+                ( { model | perKg = newValue, weightWarning = False }
+                , setCache
+                    (Cache "perKg"
+                        (if newValue then
+                            1
+
+                         else
+                            0
+                        )
+                    )
+                )

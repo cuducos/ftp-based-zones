@@ -1,7 +1,7 @@
 module View exposing (view)
 
 import Html exposing (Html, a, button, div, h1, h2, i, input, label, text)
-import Html.Attributes exposing (checked, class, for, href, id, style, type_, value)
+import Html.Attributes exposing (attribute, checked, class, for, href, id, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Model exposing (Model, Unit(..), Zone, ZoneId(..))
 import Round
@@ -51,24 +51,47 @@ zoneColor zone =
             "red"
 
 
-viewFTPSettings : Int -> Int -> Unit -> Html Msg
-viewFTPSettings ftp weight unit =
+viewFTPSettings : Int -> Html Msg
+viewFTPSettings ftp =
     let
-        toStr : Int -> String
-        toStr n =
-            if n == 0 then
+        ftpLabel : String
+        ftpLabel =
+            if ftp == 0 then
                 ""
 
             else
-                String.fromInt n
+                String.fromInt ftp
+    in
+    div [ class "field" ]
+        [ label [] [ text "FTP test result" ]
+        , div [ class "ui fluid action left icon input" ]
+            [ i [ class "bolt icon" ] []
+            , input
+                [ type_ "numeric"
+                , value ftpLabel
+                , onInput UpdateFTP
+                ]
+                []
+            , button
+                [ class "ui icon button"
+                , onClick ToggleShowSettings
+                , attribute "aria-label" "Settings"
+                ]
+                [ i [ class "cog icon" ] [] ]
+            ]
+        ]
 
-        ftpLabel : String
-        ftpLabel =
-            toStr ftp
 
+viewWeightSetting : Int -> Unit -> Bool -> Html Msg
+viewWeightSetting weight unit perKg =
+    let
         weightLabel : String
         weightLabel =
-            toStr weight
+            if weight == 0 then
+                ""
+
+            else
+                String.fromInt weight
 
         isMetric : Bool
         isMetric =
@@ -83,24 +106,12 @@ viewFTPSettings ftp weight unit =
         isImperial =
             not isMetric
     in
-    div [ class "fields" ]
-        [ div [ class "eight wide field" ]
-            [ label [] [ text "FTP test result" ]
-            , div [ class "ui left icon input" ]
-                [ i [ class "bolt icon" ] []
-                , input
-                    [ type_ "numeric"
-                    , value ftpLabel
-                    , onInput UpdateFTP
-                    ]
-                    []
-                ]
-            ]
-        , div [ class "eight wide field" ]
-            [ label [] [ text "Weight (zones in W/kg)" ]
-            , div [ class "two fields" ]
-                [ div [ class "field" ]
-                    [ div [ class "ui left icon input" ]
+    div [ class "field" ]
+        [ label [] [ text "Weight" ]
+        , div [ class "ui stackable grid" ]
+            [ div [ class "three column row" ]
+                [ div [ class "column" ]
+                    [ div [ class "ui fluid left icon input" ]
                         [ i [ class "weight icon" ] []
                         , input
                             [ type_ "numeric"
@@ -110,14 +121,32 @@ viewFTPSettings ftp weight unit =
                             []
                         ]
                     ]
-                , div [ class "inline fields" ]
-                    [ div [ class "field" ]
-                        [ input [ class "ui radio checkbox", id "kg", type_ "radio", checked isMetric, onClick SetMetric ] []
-                        , label [ for "kg" ] [ text " kg" ]
+                , div [ class "column" ]
+                    [ div
+                        [ style "display" "flex"
+                        , style "align-items" "center"
+                        , style "gap" "0.5em"
                         ]
-                    , div [ class "field" ]
-                        [ input [ class "ui radio checkbox", id "lbs", type_ "radio", checked isImperial, onClick SetImperial ] []
-                        , label [ for "lbs" ] [ text " lbs" ]
+                        [ input [ class "ui radio checkbox", id "kg", type_ "radio", checked isMetric, onClick SetMetric ] []
+                        , label [ for "kg", style "margin" "0" ] [ text "kg" ]
+                        , input [ class "ui radio checkbox", id "lbs", type_ "radio", checked isImperial, onClick SetImperial ] []
+                        , label [ for "lbs", style "margin" "0" ] [ text "lbs" ]
+                        ]
+                    ]
+                , div [ class "column" ]
+                    [ div
+                        [ style "display" "flex"
+                        , style "align-items" "center"
+                        , style "gap" "0.3em"
+                        ]
+                        [ input
+                            [ type_ "checkbox"
+                            , checked perKg
+                            , onClick ToggleZoneInWPerKg
+                            , id "perKg"
+                            ]
+                            []
+                        , label [ for "perKg", style "margin" "0" ] [ text "Show zones in W/kg" ]
                         ]
                     ]
                 ]
@@ -136,30 +165,33 @@ viewZoneSettings zone =
         maxLabel =
             "Maximum for " ++ zoneName zone
     in
-    div
-        [ class "fields" ]
-        [ div [ class "eight wide field" ]
-            [ label [] [ text minLabel ]
-            , div [ class "ui left icon input" ]
-                [ i [ class "percent icon" ] []
-                , input
-                    [ type_ "numeric"
-                    , zone.minPercent |> String.fromInt |> value
-                    , onInput (UpdateSettings zone Min)
+    div [ class "ui stackable two column grid" ]
+        [ div [ class "column" ]
+            [ div [ class "field" ]
+                [ label [] [ text minLabel ]
+                , div [ class "ui fluid left icon input" ]
+                    [ i [ class "percent icon" ] []
+                    , input
+                        [ type_ "numeric"
+                        , zone.minPercent |> String.fromInt |> value
+                        , onInput (UpdateSettings zone Min)
+                        ]
+                        []
                     ]
-                    []
                 ]
             ]
-        , div [ class "eight wide field" ]
-            [ label [] [ text maxLabel ]
-            , div [ class "ui left icon input" ]
-                [ i [ class "percent icon" ] []
-                , input
-                    [ type_ "numeric"
-                    , zone.maxPercent |> String.fromInt |> value
-                    , onInput (UpdateSettings zone Max)
+        , div [ class "column" ]
+            [ div [ class "field" ]
+                [ label [] [ text maxLabel ]
+                , div [ class "ui fluid left icon input" ]
+                    [ i [ class "percent icon" ] []
+                    , input
+                        [ type_ "numeric"
+                        , zone.maxPercent |> String.fromInt |> value
+                        , onInput (UpdateSettings zone Max)
+                        ]
+                        []
                     ]
-                    []
                 ]
             ]
         ]
@@ -180,19 +212,23 @@ wattsPerKg watts weight unit =
     toFloat watts / kg
 
 
-viewWatts : Int -> Int -> Unit -> String
-viewWatts power weight unit =
-    if weight == 0 then
-        String.fromInt power
+viewWatts : Int -> Int -> Unit -> Bool -> String
+viewWatts power weight unit perKg =
+    if perKg then
+        if weight == 0 then
+            "0"
+
+        else
+            unit
+                |> wattsPerKg power weight
+                |> Round.round 1
 
     else
-        unit
-            |> wattsPerKg power weight
-            |> Round.round 1
+        String.fromInt power
 
 
-viewZone : Zone -> Int -> Unit -> Html Msg
-viewZone zone weight unit =
+viewZone : Zone -> Int -> Unit -> Bool -> Html Msg
+viewZone zone weight unit perKg =
     div
         [ class "ui inverted segment"
         , class (zoneColor zone)
@@ -203,8 +239,8 @@ viewZone zone weight unit =
             , div [ class "h2" ]
                 [ text
                     (String.join " — "
-                        [ viewWatts zone.min weight unit
-                        , viewWatts zone.max weight unit
+                        [ viewWatts zone.min weight unit perKg
+                        , viewWatts zone.max weight unit perKg
                         ]
                     )
                 ]
@@ -215,38 +251,19 @@ viewZone zone weight unit =
 view : Model -> Html Msg
 view model =
     let
-        zoneSettingsLabel : String
-        zoneSettingsLabel =
+        zoneCards : Html Msg
+        zoneCards =
             if model.showSettings then
-                "Hide zone settings"
-
-            else
-                "Show zone settings"
-
-        zoneSettings : Html Msg
-        zoneSettings =
-            if model.showSettings then
-                div
-                    []
-                    [ viewZoneSettings model.zone1
-                    , viewZoneSettings model.zone2
-                    , viewZoneSettings model.zone3
-                    , viewZoneSettings model.zone4
-                    , viewZoneSettings model.zone5
-                    , div
-                        [ style "margin-top" "1rem" ]
-                        [ button
-                            [ class "ui compact labeled icon button"
-                            , onClick ResetSettings
-                            ]
-                            [ i [ class "undo icon" ] []
-                            , text "Reset zone settings to default values"
-                            ]
-                        ]
-                    ]
-
-            else
                 div [] []
+
+            else
+                div []
+                    [ viewZone model.zone1 model.weight model.unit model.perKg
+                    , viewZone model.zone2 model.weight model.unit model.perKg
+                    , viewZone model.zone3 model.weight model.unit model.perKg
+                    , viewZone model.zone4 model.weight model.unit model.perKg
+                    , viewZone model.zone5 model.weight model.unit model.perKg
+                    ]
     in
     div
         [ class "ui middle aligned center aligned grid"
@@ -261,27 +278,11 @@ view model =
                 ]
             , div [ class "ui large form" ]
                 [ div [ class "ui stacked segment" ]
-                    [ div
-                        [ style "margin-bottom" "1rem"
-                        , style "text-align" "right"
-                        ]
-                        [ button
-                            [ class "ui compact labeled icon button"
-                            , onClick ToggleShowSettings
-                            ]
-                            [ i [ class "cog icon" ] []
-                            , text zoneSettingsLabel
-                            ]
-                        ]
-                    , viewFTPSettings model.ftp model.weight model.unit
-                    , zoneSettings
+                    [ viewFTPSettings model.ftp
+                    , viewSettings model
                     ]
                 ]
-            , viewZone model.zone1 model.weight model.unit
-            , viewZone model.zone2 model.weight model.unit
-            , viewZone model.zone3 model.weight model.unit
-            , viewZone model.zone4 model.weight model.unit
-            , viewZone model.zone5 model.weight model.unit
+            , zoneCards
             , div
                 [ class "ui message" ]
                 [ a [ href "https://github.com/cuducos/ftp-based-zones" ]
@@ -291,3 +292,35 @@ view model =
                 ]
             ]
         ]
+
+
+viewSettings : Model -> Html Msg
+viewSettings model =
+    if model.showSettings then
+        div []
+            [ viewWeightSetting model.weight model.unit model.perKg
+            , if model.weightWarning then
+                div [ class "ui visible warning message" ]
+                    [ text "Enter your weight to enable Show zones in W/kg." ]
+
+              else
+                div [] []
+            , viewZoneSettings model.zone1
+            , viewZoneSettings model.zone2
+            , viewZoneSettings model.zone3
+            , viewZoneSettings model.zone4
+            , viewZoneSettings model.zone5
+            , div
+                [ style "margin-top" "1rem" ]
+                [ button
+                    [ class "ui fluid labeled icon button"
+                    , onClick ResetSettings
+                    ]
+                    [ i [ class "undo icon" ] []
+                    , text "Reset zone settings to default values"
+                    ]
+                ]
+            ]
+
+    else
+        div [] []

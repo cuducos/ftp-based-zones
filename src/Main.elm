@@ -12,15 +12,21 @@ init cached =
         unit : Unit
         unit =
             if cached.isMetric == 1 then
-
                 Metric
+
             else
                 Imperial
+
+        perKg : Bool
+        perKg =
+            cached.perKg == 1
     in
     ( createModel
         cached.ftp
         cached.weight
         unit
+        False
+        perKg
         False
         cached.zone1Min
         cached.zone1Max
